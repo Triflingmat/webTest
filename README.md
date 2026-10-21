@@ -72,10 +72,10 @@
 │   │       ├── AnimatedNumber.vue       # 数字增长动画
 │   │       ├── ChartCard.vue            # 图表卡片外壳
 │   │       ├── ChartLegend.vue          # 自定义图例（支持纯色/渐变）
-│   │       ├── DashboardHeader.vue      # 页面标题与统计口径
+│   │       ├── 控制台Header.vue      # 页面标题与统计口径
 │   │       ├── MasterPolarChart.vue     # 劳模工匠极坐标圆角柱状图
 │   │       ├── PointsBarChart.vue       # 积分发放类型/月度滚动
-│   │       ├── RegionBarChart.vue       # 地区分布滚动柱状图
+│   │       ├── 区域BarChart.vue       # 地区分布滚动柱状图
 │   │       ├── StatGroup.vue            # 统计卡片组（Flex / Grid）
 │   │       ├── UnionRoseChart.vue       # 工会组织玫瑰图 + 内嵌图片
 │   │       └── UserTypeDonutChart.vue   # 用户类型渐变环形图
@@ -94,7 +94,7 @@
 │   ├── utils/
 │   │   └── format.ts           # 千分位、占比、求和
 │   ├── views/
-│   │   └── DashboardView.vue   # 页面布局与模块编排
+│   │   └── 控制台查看.vue   # 页面布局与模块编排
 │   ├── App.vue
 │   ├── main.ts
 │   └── vite-env.d.ts
