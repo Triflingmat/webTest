@@ -15,6 +15,8 @@ export interface StatCardItem {
   value: number
   /** 单位，例如「篇」「次」「人」 */
   unit: string
+  /** 指标图标（public 目录下的静态资源路径，可选） */
+  icon?: string
 }
 
 /** 一组统计卡片（思想引领 / 就业概况） */

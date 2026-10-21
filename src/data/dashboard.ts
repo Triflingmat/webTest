@@ -23,10 +23,34 @@ export const dashboardMockData: DashboardData = {
     title: '思想引领',
     description: '文章、阅读与互动的年度累计数据',
     items: [
-      { key: 'articlePublished', label: '文章发布数', value: 1286, unit: '篇' },
-      { key: 'articleReads', label: '阅读量', value: 486320, unit: '次' },
-      { key: 'articleAdopted', label: '文章采纳数', value: 342, unit: '篇' },
-      { key: 'articleLikes', label: '点赞量', value: 52680, unit: '次' }
+      {
+        key: 'articlePublished',
+        label: '文章发布数',
+        value: 1286,
+        unit: '篇',
+        icon: '/assets/1/发布计划.png'
+      },
+      {
+        key: 'articleReads',
+        label: '阅读量',
+        value: 486320,
+        unit: '次',
+        icon: '/assets/1/阅读记录.png'
+      },
+      {
+        key: 'articleAdopted',
+        label: '文章采纳数',
+        value: 342,
+        unit: '篇',
+        icon: '/assets/1/采纳.png'
+      },
+      {
+        key: 'articleLikes',
+        label: '点赞量',
+        value: 52680,
+        unit: '次',
+        icon: '/assets/1/点赞.png'
+      }
     ]
   },
 
@@ -35,10 +59,34 @@ export const dashboardMockData: DashboardData = {
     title: '就业概况',
     description: '岗位、求职与就业服务年度累计数据',
     items: [
-      { key: 'jobPublished', label: '发布岗位', value: 1842, unit: '个' },
-      { key: 'jobSeekers', label: '求职人数', value: 9635, unit: '人' },
-      { key: 'employmentPromoted', label: '促进就业', value: 2476, unit: '人' },
-      { key: 'recruitEvents', label: '招聘活动', value: 128, unit: '场' }
+      {
+        key: 'jobPublished',
+        label: '发布岗位',
+        value: 1842,
+        unit: '个',
+        icon: '/assets/1/岗位组.png'
+      },
+      {
+        key: 'jobSeekers',
+        label: '求职人数',
+        value: 9635,
+        unit: '人',
+        icon: '/assets/1/求职简历.png'
+      },
+      {
+        key: 'employmentPromoted',
+        label: '促进就业',
+        value: 2476,
+        unit: '人',
+        icon: '/assets/1/就业.png'
+      },
+      {
+        key: 'recruitEvents',
+        label: '招聘活动',
+        value: 128,
+        unit: '场',
+        icon: '/assets/1/人员招聘.png'
+      }
     ]
   },
 

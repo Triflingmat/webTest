@@ -22,6 +22,7 @@
 - 组件化拆分：页面（`views`）、卡片/统计（`dashboard`）、图表（`charts`）、数据（`data`）、类型（`types`）、工具（`utils`）分离。
 - `BaseEChart` 统一封装 ECharts 生命周期：挂载后初始化、配置变化 `setOption`（`notMerge`）、`ResizeObserver` + window `resize` 自适应、卸载时 `dispose` 并清理监听；容器尺寸为 0 时延后初始化。
 - ECharts 按需注册（`BarChart` / `PieChart` / `Grid` / `Polar` / `Tooltip` / `Legend` / `AxisPointer` / `CanvasRenderer`）。
+- 思想引领 / 就业概况的 8 张统计卡片通过 `StatCardItem.icon` 渲染 `public/assets/1` 下的业务图标，图标与指标一一对应。
 - 所有合计值（合计人数、占比、总计）均由明细数据计算，不在模板中硬编码。
 - 响应式：桌面 3 列 → 中等屏 2 列 → 窄屏单列，图表随容器尺寸自动 resize，无横向溢出。
 

@@ -30,7 +30,18 @@ const ACCENT_COLORS: string[] = ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b']
         class="stat-card"
         :style="{ '--stat-accent': ACCENT_COLORS[index % ACCENT_COLORS.length] }"
       >
-        <p class="stat-card__label">{{ item.label }}</p>
+        <div class="stat-card__head">
+          <p class="stat-card__label">{{ item.label }}</p>
+          <img
+            v-if="item.icon"
+            class="stat-card__icon"
+            :src="item.icon"
+            alt=""
+            width="32"
+            height="32"
+            decoding="async"
+          />
+        </div>
         <p class="stat-card__value">
           <span class="stat-card__number">{{ formatThousands(item.value) }}</span>
           <span class="stat-card__unit">{{ item.unit }}</span>
@@ -107,13 +118,30 @@ const ACCENT_COLORS: string[] = ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b']
   border-left: 3px solid var(--stat-accent);
 }
 
+.stat-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
 .stat-card__label {
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
   font-size: 12px;
   line-height: 18px;
   color: var(--color-text-secondary);
   /* 允许换行但不截断，保证指标名称完整显示 */
   overflow-wrap: anywhere;
+}
+
+.stat-card__icon {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .stat-card__value {
