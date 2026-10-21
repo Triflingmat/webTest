@@ -1,48 +1,48 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref } from "vue";
 
-import ActivityTable from '@/components/dashboard/ActivityTable.vue'
-import ChartCard from '@/components/dashboard/ChartCard.vue'
-import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
-import MasterPolarChart from '@/components/dashboard/MasterPolarChart.vue'
-import PointsBarChart from '@/components/dashboard/PointsBarChart.vue'
-import RegionBarChart from '@/components/dashboard/RegionBarChart.vue'
-import StatGroup from '@/components/dashboard/StatGroup.vue'
-import UnionRoseChart from '@/components/dashboard/UnionRoseChart.vue'
-import UserTypeDonutChart from '@/components/dashboard/UserTypeDonutChart.vue'
-import { dashboardMockData } from '@/data/dashboard'
-import { formatThousands, sumValues } from '@/utils/format'
+import ActivityTable from "@/components/dashboard/ActivityTable.vue";
+import ChartCard from "@/components/dashboard/ChartCard.vue";
+import DashboardHeader from "@/components/dashboard/DashboardHeader.vue";
+import MasterPolarChart from "@/components/dashboard/MasterPolarChart.vue";
+import PointsBarChart from "@/components/dashboard/PointsBarChart.vue";
+import RegionBarChart from "@/components/dashboard/RegionBarChart.vue";
+import StatGroup from "@/components/dashboard/StatGroup.vue";
+import UnionRoseChart from "@/components/dashboard/UnionRoseChart.vue";
+import UserTypeDonutChart from "@/components/dashboard/UserTypeDonutChart.vue";
+import { dashboardMockData } from "@/data/dashboard";
+import { formatThousands, sumValues } from "@/utils/format";
 
-import type { PointsViewMode, StatCardLayout } from '@/types/dashboard'
+import type { PointsViewMode, StatCardLayout } from "@/types/dashboard";
 
 /** 当前看板数据源（模拟数据，后续可替换为接口返回） */
-const data = dashboardMockData
+const data = dashboardMockData;
 
 /** 统计卡片布局：默认 Grid，可切换为 Flex，两种模式共享同一份数据 */
-const statLayout = ref<StatCardLayout>('grid')
+const statLayout = ref<StatCardLayout>("grid");
 
 /** 积分发放视图模式：默认「类型视图」，可切换为「月度视图」 */
-const pointsViewMode = ref<PointsViewMode>('type')
+const pointsViewMode = ref<PointsViewMode>("month");
 
 const pointsData = computed(() =>
-  pointsViewMode.value === 'type' ? data.points.byType : data.points.byMonth
-)
+  pointsViewMode.value === "type" ? data.points.byType : data.points.byMonth,
+);
 
 /** 派生量全部由明细求和，避免与图表数据不一致 */
-const pointsTotal = computed(() => sumValues(pointsData.value))
-const regionTotal = computed(() => sumValues(data.regionReads))
-const userTypeTotal = computed(() => sumValues(data.userTypes))
-const masterTotal = computed(() => sumValues(data.masters))
-const unionTotal = computed(() => sumValues(data.unionOrgs))
+const pointsTotal = computed(() => sumValues(pointsData.value));
+const regionTotal = computed(() => sumValues(data.regionReads));
+const userTypeTotal = computed(() => sumValues(data.userTypes));
+const masterTotal = computed(() => sumValues(data.masters));
+const unionTotal = computed(() => sumValues(data.unionOrgs));
 const activityTotal = computed(() =>
-  data.activities.reduce((total, item) => total + item.participants, 0)
-)
+  data.activities.reduce((total, item) => total + item.participants, 0),
+);
 
 const pointsSubtitle = computed(() =>
-  pointsViewMode.value === 'type'
+  pointsViewMode.value === "type"
     ? `按发放类型 · 合计 ${formatThousands(pointsTotal.value)} 积分`
-    : `按月份 · 全年合计 ${formatThousands(pointsTotal.value)} 积分`
-)
+    : `按月份 · 全年合计 ${formatThousands(pointsTotal.value)} 积分`,
+);
 </script>
 
 <template>
