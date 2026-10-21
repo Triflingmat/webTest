@@ -10,8 +10,8 @@ interface Props {
 
 defineProps<Props>()
 
-/** 每组指标的辅助色，按顺序取用，保持整体协调 */
-const ACCENT_COLORS: string[] = ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b']
+/** 图标容器的浅色背景，沿用原卡片的四色辅助色系 */
+const ACCENT_TINTS: string[] = ['#eff6ff', '#f0f9ff', '#f0fdfa', '#fffbeb']
 </script>
 
 <template>
@@ -28,24 +28,18 @@ const ACCENT_COLORS: string[] = ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b']
         v-for="(item, index) in data.items"
         :key="item.key"
         class="stat-card"
-        :style="{ '--stat-accent': ACCENT_COLORS[index % ACCENT_COLORS.length] }"
+        :style="{ '--stat-tint': ACCENT_TINTS[index % ACCENT_TINTS.length] }"
       >
-        <div class="stat-card__head">
-          <p class="stat-card__label">{{ item.label }}</p>
-          <img
-            v-if="item.icon"
-            class="stat-card__icon"
-            :src="item.icon"
-            alt=""
-            width="32"
-            height="32"
-            decoding="async"
-          />
+        <div v-if="item.icon" class="stat-card__icon-box">
+          <img class="stat-card__icon" :src="item.icon" alt="" width="34" height="34" decoding="async" />
         </div>
-        <p class="stat-card__value">
-          <span class="stat-card__number">{{ formatThousands(item.value) }}</span>
-          <span class="stat-card__unit">{{ item.unit }}</span>
-        </p>
+        <div class="stat-card__content">
+          <p class="stat-card__label">{{ item.label }}</p>
+          <p class="stat-card__value">
+            <span class="stat-card__number">{{ formatThousands(item.value) }}</span>
+            <span class="stat-card__unit">{{ item.unit }}</span>
+          </p>
+        </div>
       </article>
     </div>
   </section>
@@ -102,73 +96,87 @@ const ACCENT_COLORS: string[] = ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b']
 
 .stat-group__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
 .stat-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px 14px;
-  background-color: var(--color-surface-subtle);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 10px;
-  border-left: 3px solid var(--stat-accent);
-}
-
-.stat-card__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 10px 24px -20px rgba(15, 23, 42, 0.28);
+}
+
+.stat-card__icon-box {
+  display: flex;
+  flex: 0 0 52px;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background-color: var(--stat-tint);
+  border-radius: 14px;
+}
+
+.stat-card__icon {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.stat-card__content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
   min-width: 0;
 }
 
 .stat-card__label {
-  flex: 1 1 auto;
-  min-width: 0;
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   line-height: 18px;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   /* 允许换行但不截断，保证指标名称完整显示 */
   overflow-wrap: anywhere;
 }
 
-.stat-card__icon {
-  flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-}
-
 .stat-card__value {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 4px;
+  min-width: 0;
   margin: 0;
   font-variant-numeric: tabular-nums;
 }
 
 .stat-card__number {
-  font-size: 24px;
+  font-size: clamp(24px, 1.9vw, 28px);
   font-weight: 700;
-  line-height: 30px;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
   color: var(--color-text-strong);
+  /* 常规数值保持单行；异常长的数值允许换行兜底，避免撑破卡片 */
+  overflow-wrap: anywhere;
 }
 
 .stat-card__unit {
   font-size: 12px;
   line-height: 18px;
   color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 640px) {
   .stat-group__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>
