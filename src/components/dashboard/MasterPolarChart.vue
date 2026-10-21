@@ -4,12 +4,7 @@ import { computed } from 'vue'
 import BaseEChart from '@/components/charts/BaseEChart.vue'
 import type { EChartsOption } from '@/components/charts/echarts'
 import ChartLegend from '@/components/dashboard/ChartLegend.vue'
-import {
-  CHART_AXIS_LINE_COLOR,
-  CHART_SPLIT_LINE_COLOR,
-  CHART_TEXT_COLOR,
-  MASTER_LEVEL_COLORS
-} from '@/data/palette'
+import { CHART_SPLIT_LINE_COLOR, MASTER_LEVEL_COLORS } from '@/data/palette'
 import { formatThousands } from '@/utils/format'
 
 import type { ChartLegendItem } from '@/types/chart'
@@ -37,6 +32,23 @@ const legendItems = computed<ChartLegendItem[]>(() =>
   }))
 )
 
+/**
+ * 角度轴上限：为最大值留约 5% 余量并取整，
+ * 避免最长的一条圆头柱正好绕满一周而与起点重叠。
+ */
+const angleMax = computed(() => {
+  const peak = Math.max(1, ...props.data.map((item) => item.value))
+  const rough = peak * 1.05
+  const step = 10 ** Math.max(0, Math.floor(Math.log10(rough)) - 1)
+  return Math.ceil(rough / step) * step
+})
+
+/**
+ * 极坐标圆角柱：级别放在半径轴（类目轴），人数放在角度轴。
+ * 这样柱体沿切向生长，ECharts 的 `roundCap` 才会生效；
+ * 若把级别放在角度轴上，柱体沿径向生长，`roundCap` 会被忽略，
+ * 只能得到没有圆头的楔形柱。
+ */
 const option = computed<EChartsOption>(() => ({
   tooltip: {
     trigger: 'item',
@@ -46,40 +58,50 @@ const option = computed<EChartsOption>(() => ({
     textStyle: { color: '#f8fafc', fontSize: 12 },
     formatter: (params) => {
       const data = params as { name?: string; value?: number | string }
-      return `${data.name ?? ''}级劳模工匠<br/>人数：${formatThousands(Number(data.value ?? 0))} 人`
+      return `${data.name ?? ''}劳模工匠<br/>人数：${formatThousands(Number(data.value ?? 0))} 人`
     }
   },
   polar: {
     center: ['50%', '50%'],
-    radius: ['22%', '76%']
+    radius: ['20%', '82%']
   },
   angleAxis: {
-    type: 'category',
-    data: props.data.map((item) => item.level),
-    startAngle: 90,
-    axisLine: { lineStyle: { color: CHART_AXIS_LINE_COLOR } },
-    axisTick: { show: false },
-    axisLabel: { color: CHART_TEXT_COLOR, fontSize: 12, margin: 10 }
-  },
-  radiusAxis: {
     type: 'value',
+    min: 0,
+    max: angleMax.value,
+    startAngle: 90,
+    clockwise: true,
     axisLine: { show: false },
     axisTick: { show: false },
-    // 极坐标数值轴的刻度文字容易与柱体、角度轴标签重叠，
-    // 具体数值由图例与提示框给出，这里只保留网格环
+    // 圆周刻度容易与圆头柱端部重叠，具体数值由图例和提示框给出
     axisLabel: { show: false },
     splitLine: { lineStyle: { color: CHART_SPLIT_LINE_COLOR, type: 'dashed' } }
+  },
+  radiusAxis: {
+    type: 'category',
+    data: props.data.map((item) => item.level),
+    axisLine: { show: false },
+    axisTick: { show: false },
+    // 类目名称由图例承担，避免沿半径方向排布时与柱体叠字
+    axisLabel: { show: false },
+    splitLine: { show: false }
   },
   series: [
     {
       name: '劳模工匠',
       type: 'bar',
       coordinateSystem: 'polar',
-      barCategoryGap: '48%',
-      // 颜色随级别变化，柱体长度始终由真实数值决定
+      // 切向极坐标柱才支持 roundCap，圆头效果由 ECharts 5.6 原生绘制
+      roundCap: true,
+      barWidth: '62%',
+      // 背景轨道用于呈现每条柱体在角度轴上的完整量程
+      showBackground: true,
+      backgroundStyle: { color: '#f3f6fa' },
+      // 颜色随级别变化，柱体弧长始终由真实数值决定
       data: props.data.map((item, index) => ({
+        name: item.level,
         value: item.value,
-        itemStyle: { color: colorOf(index), borderRadius: [4, 4, 0, 0] }
+        itemStyle: { color: colorOf(index) }
       })),
       emphasis: { focus: 'self' }
     }
@@ -89,7 +111,12 @@ const option = computed<EChartsOption>(() => ({
 
 <template>
   <div class="polar">
-    <BaseEChart class="polar__chart" :option="option" :height="height" aria-label="劳模工匠级别极坐标柱状图" />
+    <BaseEChart
+      class="polar__chart"
+      :option="option"
+      :height="height"
+      aria-label="劳模工匠级别极坐标圆角柱状图"
+    />
     <ChartLegend class="polar__legend" :items="legendItems" unit="人" direction="side" />
   </div>
 </template>

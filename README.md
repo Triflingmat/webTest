@@ -13,7 +13,7 @@
 | 阅读用户地区分布 | ECharts 横向柱状图 | `xAxis.type = 'value'` + `yAxis.type = 'category'`，柱体末端显示「数值 + 人」 |
 | 工会活动 | 原生 HTML 表格 | 排名 / 活动名称 / 分类 / 参与人次，表头 `sticky`，行高统一 |
 | 用户类型 | ECharts 环形饼图 | `radius` 内外半径 + `padAngle` 扇区间隔，中心展示由数据求和得到的总用户数 |
-| 劳模工匠 | ECharts 极坐标柱状图 | `polar` / `angleAxis` / `radiusAxis` 四级配色，图例颜色与柱体一一对应 |
+| 劳模工匠 | ECharts 极坐标圆角柱状图 | `radiusAxis` 承载级别、`angleAxis` 承载人数，`roundCap` 绘制圆头柱；四级配色与图例一一对应 |
 | 工会组织 | ECharts 玫瑰图 | `roseType = 'radius'`，半径体现数值差异 |
 | 积分发放 | ECharts 竖向柱状图 | 柱体末端数值标签、纵轴单位「积分」，支持「类型视图 / 月度视图」切换（选做功能已实现） |
 
@@ -44,7 +44,7 @@
 │   │       ├── ChartCard.vue            # 图表卡片外壳（标题/副标题/操作区）
 │   │       ├── ChartLegend.vue          # 自定义图例（颜色与图形共用色板）
 │   │       ├── DashboardHeader.vue      # 页面标题与统计口径
-│   │       ├── MasterPolarChart.vue     # 劳模工匠极坐标柱状图
+│   │       ├── MasterPolarChart.vue     # 劳模工匠极坐标圆角柱状图
 │   │       ├── PointsBarChart.vue        # 积分发放竖向柱状图
 │   │       ├── RegionBarChart.vue       # 地区分布横向柱状图
 │   │       ├── StatGroup.vue            # 统计卡片组

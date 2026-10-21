@@ -38,7 +38,7 @@ export const REGION_BAR_COLORS: string[] = [
 /** 用户类型环形图配色 */
 export const USER_TYPE_COLORS: string[] = ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b', '#8b5cf6']
 
-/** 劳模工匠极坐标柱状图配色（与图例一一对应） */
+/** 劳模工匠极坐标圆角柱状图配色（与图例一一对应） */
 export const MASTER_LEVEL_COLORS: string[] = ['#60a5fa', '#2563eb', '#14b8a6', '#f59e0b']
 
 /** 工会组织玫瑰图配色 */
