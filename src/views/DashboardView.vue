@@ -13,10 +13,13 @@ import UserTypeDonutChart from '@/components/dashboard/UserTypeDonutChart.vue'
 import { dashboardMockData } from '@/data/dashboard'
 import { formatThousands, sumValues } from '@/utils/format'
 
-import type { PointsViewMode } from '@/types/dashboard'
+import type { PointsViewMode, StatCardLayout } from '@/types/dashboard'
 
 /** 当前看板数据源（模拟数据，后续可替换为接口返回） */
 const data = dashboardMockData
+
+/** 统计卡片布局：默认 Grid，可切换为 Flex，两种模式共享同一份数据 */
+const statLayout = ref<StatCardLayout>('grid')
 
 /** 积分发放视图模式：默认「类型视图」，可切换为「月度视图」 */
 const pointsViewMode = ref<PointsViewMode>('type')
@@ -38,7 +41,7 @@ const activityTotal = computed(() =>
 const pointsSubtitle = computed(() =>
   pointsViewMode.value === 'type'
     ? `按发放类型 · 合计 ${formatThousands(pointsTotal.value)} 积分`
-    : `按月份 · 合计 ${formatThousands(pointsTotal.value)} 积分`
+    : `按月份 · 全年合计 ${formatThousands(pointsTotal.value)} 积分`
 )
 </script>
 
@@ -51,9 +54,34 @@ const pointsSubtitle = computed(() =>
     />
 
     <main class="dashboard-grid">
+      <!-- 统计卡片双布局切换 -->
+      <div class="dashboard-toolbar span-12">
+        <span class="dashboard-toolbar__label">统计卡片布局</span>
+        <div class="segmented" role="group" aria-label="统计卡片布局切换">
+          <button
+            type="button"
+            class="segmented__button"
+            :class="{ 'is-active': statLayout === 'flex' }"
+            :aria-pressed="statLayout === 'flex'"
+            @click="statLayout = 'flex'"
+          >
+            Flex 布局
+          </button>
+          <button
+            type="button"
+            class="segmented__button"
+            :class="{ 'is-active': statLayout === 'grid' }"
+            :aria-pressed="statLayout === 'grid'"
+            @click="statLayout = 'grid'"
+          >
+            Grid 布局
+          </button>
+        </div>
+      </div>
+
       <!-- 第一行：思想引领 / 就业概况 -->
-      <StatGroup class="span-6" :data="data.ideology" />
-      <StatGroup class="span-6" :data="data.employment" />
+      <StatGroup class="span-6" :data="data.ideology" :layout="statLayout" />
+      <StatGroup class="span-6" :data="data.employment" :layout="statLayout" />
 
       <!-- 第二行：阅读用户地区分布 / 工会活动 / 用户类型 -->
       <ChartCard

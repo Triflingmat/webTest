@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { formatThousands } from '@/utils/format'
+import AnimatedNumber from '@/components/dashboard/AnimatedNumber.vue'
 
-import type { StatGroupData } from '@/types/dashboard'
+import type { StatCardLayout, StatGroupData } from '@/types/dashboard'
 
 interface Props {
   /** 指标组数据 */
   data: StatGroupData
+  /** 卡片布局：Flex 或 Grid，两种模式共用同一份数据 */
+  layout?: StatCardLayout
 }
 
-defineProps<Props>()
+withDefaults(defineProps<Props>(), {
+  layout: 'grid'
+})
 
 /** 图标容器的浅色背景，沿用原卡片的四色辅助色系 */
 const ACCENT_TINTS: string[] = ['#eff6ff', '#f0f9ff', '#f0fdfa', '#fffbeb']
@@ -23,7 +27,11 @@ const ACCENT_TINTS: string[] = ['#eff6ff', '#f0f9ff', '#f0fdfa', '#fffbeb']
       </div>
     </header>
 
-    <div class="stat-group__grid">
+    <div
+      class="stat-group__cards"
+      :class="`stat-group__cards--${layout}`"
+      :data-layout="layout"
+    >
       <article
         v-for="(item, index) in data.items"
         :key="item.key"
@@ -36,7 +44,7 @@ const ACCENT_TINTS: string[] = ['#eff6ff', '#f0f9ff', '#f0fdfa', '#fffbeb']
         <div class="stat-card__content">
           <p class="stat-card__label">{{ item.label }}</p>
           <p class="stat-card__value">
-            <span class="stat-card__number">{{ formatThousands(item.value) }}</span>
+            <span class="stat-card__number"><AnimatedNumber :value="item.value" /></span>
             <span class="stat-card__unit">{{ item.unit }}</span>
           </p>
         </div>
@@ -94,10 +102,22 @@ const ACCENT_TINTS: string[] = ['#eff6ff', '#f0f9ff', '#f0fdfa', '#fffbeb']
   color: var(--color-text-muted);
 }
 
-.stat-group__grid {
+.stat-group__cards {
+  gap: 12px;
+}
+
+.stat-group__cards--grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+}
+
+.stat-group__cards--flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.stat-group__cards--flex .stat-card {
+  flex: 1 1 calc(50% - 6px);
 }
 
 .stat-card {
@@ -175,8 +195,12 @@ const ACCENT_TINTS: string[] = ['#eff6ff', '#f0f9ff', '#f0fdfa', '#fffbeb']
 }
 
 @media (max-width: 640px) {
-  .stat-group__grid {
+  .stat-group__cards--grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stat-group__cards--flex .stat-card {
+    flex-basis: 100%;
   }
 }
 </style>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 
+import { ANIMATION_DURATION, CAROUSEL_EASING } from '@/config/animation'
+import { useCarousel } from '@/composables/useCarousel'
 import { formatThousands } from '@/utils/format'
 
 import type { ActivityRow } from '@/types/dashboard'
@@ -12,17 +14,92 @@ interface Props {
 
 const props = defineProps<Props>()
 
+/** 可视区域固定展示 4 行 */
+const VISIBLE_ROWS = 4
+const ROW_HEIGHT = 56
+
 const rows = computed(() => props.data)
 
-/** 表尾合计，由明细求和得出 */
+/**
+ * 7 条真实数据 + 前 4 条克隆，用于首尾视觉衔接。
+ * 克隆行只参与滚动展示，不参与合计和行数统计。
+ */
+const displayRows = computed(() => [
+  ...rows.value,
+  ...rows.value.slice(0, VISIBLE_ROWS)
+])
+
+const scrollOffset = ref(0)
+const instantReset = ref(false)
+let resetFrame = 0
+let disposed = false
+
+const trackStyle = computed(() => ({
+  transform: `translateY(-${scrollOffset.value * ROW_HEIGHT}px)`,
+  transition: instantReset.value
+    ? 'none'
+    : `transform ${ANIMATION_DURATION}ms ${CAROUSEL_EASING}`
+}))
+
+/** 表尾合计始终由 7 条基础数据计算 */
 const totalParticipants = computed(() =>
-  props.data.reduce((total, item) => total + item.participants, 0)
+  rows.value.reduce((total, item) => total + item.participants, 0)
 )
+
+/** 当前可视窗口中的排名，供浏览器验收读取 */
+const visibleWindow = computed(() => {
+  if (!rows.value.length) return ''
+
+  return Array.from({ length: VISIBLE_ROWS }, (_, index) => {
+    return String(rows.value[(scrollOffset.value + index) % rows.value.length]?.rank ?? '')
+  }).join(' ')
+})
+
+function restartScroll(): void {
+  instantReset.value = true
+  scrollOffset.value = 0
+
+  resetFrame = window.requestAnimationFrame(() => {
+    resetFrame = window.requestAnimationFrame(() => {
+      resetFrame = 0
+      if (disposed) return
+      instantReset.value = false
+      scrollOffset.value = 1
+    })
+  })
+}
+
+function advance(): void {
+  if (!rows.value.length || disposed) return
+
+  // 偏移到第 7 个窗口时，可视内容与初始窗口一致，可无感复位
+  if (scrollOffset.value >= rows.value.length) {
+    restartScroll()
+    return
+  }
+
+  scrollOffset.value += 1
+}
+
+useCarousel(advance)
+
+onBeforeUnmount(() => {
+  disposed = true
+  if (resetFrame) {
+    window.cancelAnimationFrame(resetFrame)
+    resetFrame = 0
+  }
+})
 </script>
 
 <template>
-  <div class="activity-table">
-    <div class="activity-table__scroll">
+  <div
+    class="activity-table"
+    :data-total-rows="rows.length"
+    :data-visible-count="VISIBLE_ROWS"
+    :data-visible-window="visibleWindow"
+  >
+    <div class="activity-table__header">
       <table class="activity-table__table">
         <colgroup>
           <col class="col-rank" />
@@ -38,21 +115,40 @@ const totalParticipants = computed(() =>
             <th scope="col" class="is-end">参与人次</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="row in rows" :key="row.rank">
-            <td class="is-center">
-              <span class="activity-table__rank" :class="{ 'is-top': row.rank <= 3 }">{{ row.rank }}</span>
-            </td>
-            <td class="activity-table__name" :title="row.name">{{ row.name }}</td>
-            <td class="is-center">
-              <span class="activity-table__tag">{{ row.category }}</span>
-            </td>
-            <td class="is-end activity-table__value">
-              {{ formatThousands(row.participants) }}<em>人次</em>
-            </td>
-          </tr>
-        </tbody>
       </table>
+    </div>
+
+    <div class="activity-table__viewport" :style="{ height: `${VISIBLE_ROWS * ROW_HEIGHT}px` }">
+      <div class="activity-table__track" :style="trackStyle">
+        <table class="activity-table__table">
+          <colgroup>
+            <col class="col-rank" />
+            <col class="col-name" />
+            <col class="col-category" />
+            <col class="col-participants" />
+          </colgroup>
+          <tbody>
+            <tr
+              v-for="(row, index) in displayRows"
+              :key="`${row.rank}-${index}`"
+              :style="{ height: `${ROW_HEIGHT}px` }"
+            >
+              <td class="is-center">
+                <span class="activity-table__rank" :class="{ 'is-top': row.rank <= 3 }">
+                  {{ row.rank }}
+                </span>
+              </td>
+              <td class="activity-table__name" :title="row.name">{{ row.name }}</td>
+              <td class="is-center">
+                <span class="activity-table__tag">{{ row.category }}</span>
+              </td>
+              <td class="is-end activity-table__value">
+                {{ formatThousands(row.participants) }}<em>人次</em>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <p class="activity-table__footer">
@@ -71,14 +167,21 @@ const totalParticipants = computed(() =>
   min-height: 0;
 }
 
-.activity-table__scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  /* 可容纳约 11 行（当前 10 条模拟数据全部可见）；后续数据增多时该区域独立滚动 */
-  max-height: 420px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+.activity-table__header {
+  flex: none;
+  overflow: hidden;
+  background-color: #f1f5fb;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.activity-table__viewport {
+  flex: none;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.activity-table__track {
+  will-change: transform;
 }
 
 .activity-table__table {
@@ -105,9 +208,6 @@ const totalParticipants = computed(() =>
 }
 
 .activity-table__table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
   height: 35px;
   padding: 0 8px;
   font-weight: 600;
@@ -115,12 +215,9 @@ const totalParticipants = computed(() =>
   color: var(--color-text-secondary);
   text-align: left;
   white-space: nowrap;
-  background-color: #f1f5fb;
-  border-bottom: 1px solid var(--color-border);
 }
 
 .activity-table__table tbody td {
-  height: 35px;
   padding: 0 8px;
   line-height: 18px;
   color: var(--color-text);
@@ -169,8 +266,10 @@ const totalParticipants = computed(() =>
 }
 
 .activity-table__name {
-  /* 名称过长时换行显示，不遮挡其他列 */
-  overflow-wrap: anywhere;
+  /* 固定行高下采用省略号，保证滚动时列对齐且不撑高 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .activity-table__tag {
@@ -179,10 +278,10 @@ const totalParticipants = computed(() =>
   font-size: 11px;
   line-height: 16px;
   color: #2563eb;
-  white-space: nowrap;
   background-color: #eff6ff;
   border: 1px solid #d6e4ff;
   border-radius: 4px;
+  white-space: nowrap;
 }
 
 .activity-table__value {

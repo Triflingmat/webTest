@@ -177,6 +177,7 @@ const PAGE_SNAPSHOT_EXPRESSION = `(() => {
     el.textContent.trim().replace(/\\s+/g, ' ')
   )
   const cards = [...document.querySelectorAll('.chart-card')]
+  const pointsCard = cards.find((card) => card.querySelector('.chart-card__title')?.textContent.includes('积分发放'))
   const canvasInfo = [...document.querySelectorAll('.base-echart canvas')].map((canvas) => ({
     width: canvas.width,
     height: canvas.height
@@ -189,11 +190,14 @@ const PAGE_SNAPSHOT_EXPRESSION = `(() => {
     statCardCount: document.querySelectorAll('.stat-card').length,
     statLabels: texts('.stat-card__label'),
     statValues: texts('.stat-card__number'),
-    activityRowCount: document.querySelectorAll('.activity-table__table tbody tr').length,
-    activityHeaders: texts('.activity-table__table thead th'),
+    statLayout: document.querySelector('.stat-group__cards')?.dataset.layout ?? null,
+    // 表格包含循环用克隆行，业务行数以组件暴露的基础数据量为准
+    activityRowCount: Number(document.querySelector('.activity-table')?.dataset.totalRows ?? 0),
+    activityDomRowCount: document.querySelectorAll('.activity-table__track tbody tr').length,
+    activityHeaders: texts('.activity-table__header thead th'),
     legendCounts: [...document.querySelectorAll('.chart-legend')].map((list) => list.children.length),
-    pointsSubtitle: cards.length ? cards[cards.length - 1].querySelector('.chart-card__subtitle')?.textContent.trim() : null,
-    pointsActiveTab: text('.segmented__button.is-active'),
+    pointsSubtitle: pointsCard?.querySelector('.chart-card__subtitle')?.textContent.trim() ?? null,
+    pointsActiveTab: pointsCard?.querySelector('.segmented__button.is-active')?.textContent.trim() ?? null,
     canvasCount: canvasInfo.length,
     canvasInfo,
     horizontalOverflow: document.documentElement.scrollWidth - window.innerWidth,
@@ -261,7 +265,8 @@ async function main() {
     }
     if (snapshot.statCardCount !== 8) problems.push(`统计卡片数量应为 8，实际 ${snapshot.statCardCount}`)
     if (snapshot.canvasCount !== 5) problems.push(`ECharts 画布数量应为 5，实际 ${snapshot.canvasCount}`)
-    if (snapshot.activityRowCount !== 10) problems.push(`活动表格行数应为 10，实际 ${snapshot.activityRowCount}`)
+    if (snapshot.activityRowCount !== 7) problems.push(`活动基础数据应为 7 条，实际 ${snapshot.activityRowCount}`)
+    if (snapshot.activityDomRowCount !== 11) problems.push(`活动表格应渲染 7 条数据 + 4 条克隆行，实际 ${snapshot.activityDomRowCount}`)
     const emptyCanvas = snapshot.canvasInfo.filter((item) => item.width < 10 || item.height < 10)
     if (emptyCanvas.length) problems.push(`存在尺寸异常的图表画布: ${JSON.stringify(emptyCanvas)}`)
     if (snapshot.horizontalOverflow > 1) problems.push(`桌面尺寸出现横向溢出: ${snapshot.horizontalOverflow}px`)

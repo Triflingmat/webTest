@@ -90,19 +90,16 @@ export const dashboardMockData: DashboardData = {
     ]
   },
 
-  /* ============ 模块 2：阅读用户地区分布 ============ */
+  /* ============ 模块 2：阅读用户地区分布（5 条，3 条可视） ============ */
   regionReads: [
     { name: '城东区', value: 12480 },
     { name: '城西区', value: 10860 },
     { name: '城南区', value: 9630 },
     { name: '城北区', value: 8720 },
-    { name: '高新区', value: 7840 },
-    { name: '开发新区', value: 6210 },
-    { name: '临江县', value: 5240 },
-    { name: '芦川县', value: 4150 }
+    { name: '高新区', value: 7840 }
   ],
 
-  /* ============ 模块 3：工会活动 ============ */
+  /* ============ 模块 3：工会活动（7 条，4 行可视） ============ */
   activities: [
     { rank: 1, name: '职工读书分享会', category: '文化体育', participants: 1260 },
     { rank: 2, name: '春季职工篮球联赛', category: '文化体育', participants: 1180 },
@@ -110,10 +107,7 @@ export const dashboardMockData: DashboardData = {
     { rank: 4, name: '职工技能比武大赛', category: '技能竞赛', participants: 875 },
     { rank: 5, name: '女职工健康知识讲座', category: '关爱服务', participants: 742 },
     { rank: 6, name: '送文艺下基层演出', category: '文化体育', participants: 690 },
-    { rank: 7, name: '职工心理健康沙龙', category: '关爱服务', participants: 615 },
-    { rank: 8, name: '困难职工帮扶走访', category: '困难帮扶', participants: 523 },
-    { rank: 9, name: '职工志愿服务月', category: '社会治理', participants: 468 },
-    { rank: 10, name: '青年职工联谊活动', category: '文化体育', participants: 412 }
+    { rank: 7, name: '职工心理健康沙龙', category: '关爱服务', participants: 615 }
   ],
 
   /* ============ 模块 4：用户类型 ============ */

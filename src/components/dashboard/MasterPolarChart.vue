@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import BaseEChart from '@/components/charts/BaseEChart.vue'
 import type { EChartsOption } from '@/components/charts/echarts'
 import ChartLegend from '@/components/dashboard/ChartLegend.vue'
+import { CHART_ANIMATION } from '@/config/animation'
 import { CHART_SPLIT_LINE_COLOR, MASTER_LEVEL_COLORS } from '@/data/palette'
 import { formatThousands } from '@/utils/format'
 
@@ -50,6 +51,7 @@ const angleMax = computed(() => {
  * 只能得到没有圆头的楔形柱。
  */
 const option = computed<EChartsOption>(() => ({
+  ...CHART_ANIMATION,
   tooltip: {
     trigger: 'item',
     backgroundColor: 'rgba(15, 23, 42, 0.92)',

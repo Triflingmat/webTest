@@ -30,6 +30,9 @@ let resizeObserver: ResizeObserver | null = null
 let resizeFrame = 0
 let initFrame = 0
 let initAttempts = 0
+/** 最近一次初始化的容器尺寸；ResizeObserver 首次回调尺寸未变时直接跳过 */
+let lastWidth = 0
+let lastHeight = 0
 
 /** 容器是否已具备可绘制尺寸 */
 function hasRenderableSize(): boolean {
@@ -49,6 +52,8 @@ function initChart(): void {
     return
   }
 
+  lastWidth = containerRef.value.clientWidth
+  lastHeight = containerRef.value.clientHeight
   const instance = echarts.init(containerRef.value, undefined, { renderer: 'canvas' })
   instance.setOption(props.option)
   chartRef.value = instance
@@ -73,7 +78,16 @@ function scheduleResize(): void {
 
 function resizeChart(): void {
   const instance = chartRef.value
-  if (!instance || instance.isDisposed() || !hasRenderableSize()) return
+  const el = containerRef.value
+  if (!instance || instance.isDisposed() || !el || !hasRenderableSize()) return
+
+  const width = el.clientWidth
+  const height = el.clientHeight
+  // 首次 observe 会回调一次，但尺寸没有变化；此时 resize 会打断入场动画
+  if (width === lastWidth && height === lastHeight) return
+
+  lastWidth = width
+  lastHeight = height
   instance.resize()
 }
 

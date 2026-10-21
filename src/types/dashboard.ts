@@ -68,6 +68,9 @@ export interface MasterLevelItem {
   value: number
 }
 
+/** 统计卡片布局模式 */
+export type StatCardLayout = 'flex' | 'grid'
+
 /** 积分发放视图模式 */
 export type PointsViewMode = 'type' | 'month'
 

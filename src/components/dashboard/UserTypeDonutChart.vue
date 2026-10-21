@@ -4,7 +4,12 @@ import { computed } from 'vue'
 import BaseEChart from '@/components/charts/BaseEChart.vue'
 import type { EChartsOption } from '@/components/charts/echarts'
 import ChartLegend from '@/components/dashboard/ChartLegend.vue'
-import { USER_TYPE_COLORS } from '@/data/palette'
+import { CHART_ANIMATION } from '@/config/animation'
+import {
+  USER_TYPE_GRADIENTS,
+  toCssGradient,
+  toEChartsGradient
+} from '@/data/palette'
 import { formatShare, formatThousands, sumValues } from '@/utils/format'
 
 import type { ChartLegendItem } from '@/types/chart'
@@ -25,15 +30,20 @@ const props = withDefaults(defineProps<Props>(), {
 const total = computed(() => sumValues(props.data))
 
 const legendItems = computed<ChartLegendItem[]>(() =>
-  props.data.map((item, index) => ({
-    name: item.name,
-    value: item.value,
-    color: USER_TYPE_COLORS[index % USER_TYPE_COLORS.length],
-    share: formatShare(item.value, total.value)
-  }))
+  props.data.map((item, index) => {
+    const gradient = USER_TYPE_GRADIENTS[index % USER_TYPE_GRADIENTS.length]
+    return {
+      name: item.name,
+      value: item.value,
+      color: gradient.from,
+      gradient: toCssGradient(gradient),
+      share: formatShare(item.value, total.value)
+    }
+  })
 )
 
 const option = computed<EChartsOption>(() => ({
+  ...CHART_ANIMATION,
   tooltip: {
     trigger: 'item',
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
@@ -53,6 +63,8 @@ const option = computed<EChartsOption>(() => ({
       type: 'pie',
       radius: ['54%', '78%'],
       center: ['50%', '50%'],
+      // 首次入场时所有扇区从当前起始角连续展开到目标角度
+      animationType: 'expansion',
       // padAngle + 描边共同保证扇区之间有明显间隙（兼容低版本 ECharts）
       padAngle: 2,
       itemStyle: {
@@ -66,7 +78,9 @@ const option = computed<EChartsOption>(() => ({
       data: props.data.map((item, index) => ({
         name: item.name,
         value: item.value,
-        itemStyle: { color: USER_TYPE_COLORS[index % USER_TYPE_COLORS.length] }
+        itemStyle: {
+          color: toEChartsGradient(USER_TYPE_GRADIENTS[index % USER_TYPE_GRADIENTS.length])
+        }
       }))
     }
   ]

@@ -31,7 +31,7 @@ function showShare(item: ChartLegendItem): boolean {
 <template>
   <ul class="chart-legend" :class="`chart-legend--${direction}`">
     <li v-for="item in items" :key="item.name" class="chart-legend__item">
-      <span class="chart-legend__dot" :style="{ backgroundColor: item.color }" />
+      <span class="chart-legend__dot" :style="{ background: item.gradient ?? item.color }" />
       <span class="chart-legend__name" :title="item.name">{{ item.name }}</span>
       <span class="chart-legend__meta">
         <span class="chart-legend__value">{{ formatValue(item.value) }}<em v-if="unit">{{ unit }}</em></span>

@@ -10,6 +10,8 @@ export interface ChartLegendItem {
   value: number
   /** 与图形一致的颜色 */
   color: string
+  /** 与图形一致的渐变（可选，优先于纯色展示） */
+  gradient?: string
   /** 占比（已格式化，例如 "36.2"），不传则不展示 */
   share?: string
 }
